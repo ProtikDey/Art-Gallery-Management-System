@@ -1,0 +1,834 @@
+CREATE TABLE CUSTOMERS
+(
+Customer_ID NUMBER(30),
+Customer_name VARCHAR2(100) NOT NULL,
+User_name VARCHAR2(100) NOT NULL UNIQUE,
+Password VARCHAR2(100) NOT NULL,
+Sex VARCHAR2(10)NOT NULL,
+Address VARCHAR(500) NOT NULL,
+Phone_No VARCHAR2(20)NOT NULL UNIQUE,
+Email_ID VARCHAR2(50) NOT NULL UNIQUE,
+Favorite_genre VARCHAR2(100),
+Date_of_birth DATE,
+
+CONSTRAINT CUSTOMERS_PK PRIMARY KEY(Customer_ID)
+);
+
+CREATE TABLE MANAGERS
+( 
+    Manager_ID NUMBER(30),
+    Manager_name VARCHAR2(100) NOT NULL,
+    Date_of_birth DATE,
+    Sex VARCHAR2(10)NOT NULL,
+    Address VARCHAR2(500) NOT NULL,
+    Phone_no VARCHAR2(20) NOT NULL UNIQUE ,
+    Email_ID VARCHAR2(50)NOT NULL UNIQUE,
+    Join_date DATE NOT NULL,
+    End_date DATE,
+    Salary NUMBER(15),
+    User_name VARCHAR2(100) NOT NULL UNIQUE,
+    Password VARCHAR2(100) NOT NULL,
+    
+    CONSTRAINT MANAGER_PK  PRIMARY KEY(Manager_ID),
+    CONSTRAINT M_Salary_check CHECK ( Salary>0),
+    CONSTRAINT M_date_check CHECK ( End_date> Join_date)
+    
+    
+    
+);
+
+CREATE TABLE HALLROOM
+(
+    Hall_ID NUMBER(30),
+    Hall_name VARCHAR2(100)NOT NULL,
+
+    CONSTRAINT HALLROOM_PK PRIMARY KEY( Hall_ID)
+);
+
+CREATE TABLE EXHIBITIONS
+
+(
+    Exhibition_ID NUMBER(30),
+    Exhibition_name VARCHAR2(100)NOT NULL,
+    Art_ID NUMBER(30),
+    Hall_ID NUMBER(30) NOT NULL,
+    Start_date DATE NOT NULL,
+    End_date DATE NOT NULL,
+    
+    CONSTRAINT EXHIBITIONS_PK PRIMARY KEY( Exhibition_ID,ART_ID),
+      CONSTRAINT EXHIBITIONS_FK FOREIGN KEY(Hall_ID) REFERENCES HALLROOM(Hall_ID) ON DELETE SET NULL,
+      CONSTRAINT EXHIBITIONS_FK1 FOREIGN KEY(Art_ID) REFERENCES ARTS(Art_ID) ON DELETE SET NULL,
+    CONSTRAINT EXB_date_check CHECK ( End_date>Start_date)
+
+);
+
+
+
+CREATE TABLE ARTISTS 
+(
+Artist_ID NUMBER(30), 
+Artist_name VARCHAR2(100) NOT NULL,
+User_name VARCHAR2(100) NOT NULL UNIQUE,
+Password VARCHAR2(100) NOT NULL,
+Address VARCHAR2(500) NOT NULL,
+Sex VARCHAR2(10)NOT NULL,
+Phone_no VARCHAR2(20) NOT NULL UNIQUE, 
+Email_ID VARCHAR2(50) NOT NULL UNIQUE,
+Main_genre VARCHAR2(100),
+Date_of_birth DATE,
+
+CONSTRAINT ARTISTS_PK PRIMARY KEY(Artist_ID)
+);
+
+CREATE TABLE ARTS 
+(
+Art_ID NUMBER(30),  
+Art_title VARCHAR2(50),
+Artist_ID NUMBER(30) NOT NULL,
+Art_genre VARCHAR2(100),
+Date_of_creation DATE, 
+Price VARCHAR2(10),
+Status VARCHAR2(50) NOT NULL,
+
+CONSTRAINT ARTS_PK PRIMARY KEY(Art_ID),
+CONSTRAINT ARTS_FK FOREIGN KEY(Artist_ID) REFERENCES ARTISTS(Artist_ID) ON DELETE SET NULL
+);
+
+
+CREATE TABLE EMPLOYEES 
+(
+Employee_ID NUMBER(30),
+Employee_name VARCHAR2(100) NOT NULL,
+User_name VARCHAR2(100) NOT NULL UNIQUE,
+Password VARCHAR2(100) NOT NULL,
+Manager_ID NUMBER(30) NOT NULL,
+Address VARCHAR2(500) NOT NULL,
+Sex VARCHAR2(10) NOT NULL,
+Salary VARCHAR2(15),
+Phone_no VARCHAR2(20) NOT NULL UNIQUE, 
+Email_ID VARCHAR2(50) NOT NULL UNIQUE,
+Date_of_birth DATE,
+Join_date DATE,
+End_date DATE,
+
+CONSTRAINT EMPLOYEES_PK PRIMARY KEY(Employee_ID),
+CONSTRAINT EMPLOYEES_FK FOREIGN KEY(Manager_ID) REFERENCES MANAGERS(Manager_ID) ON DELETE SET NULL,
+CONSTRAINT Emp_date_check CHECK(End_date>Join_date)
+);
+
+
+CREATE TABLE BILL
+(
+    Bill_ID NUMBER(30),
+    Customer_ID NUMBER(30) NOT NULL,
+    Art_ID NUMBER(30) NOT NULL,
+    Artist_ID NUMBER(20) NOT NULL,
+    Employee_ID NUMBER(30),
+    Bill_date DATE NOT NULL,
+    Bill_amount VARCHAR2(10)NOT NULL,
+    
+    CONSTRAINT BILL_PK PRIMARY KEY( Bill_ID),
+    CONSTRAINT BILL_FK1 FOREIGN KEY(Customer_ID) REFERENCES CUSTOMERS(Customer_ID) ON DELETE SET NULL,
+    CONSTRAINT BILL_FK2 FOREIGN KEY(Art_ID) REFERENCES ARTS(Art_ID) ON DELETE SET NULL,
+    CONSTRAINT BILL_FK4 FOREIGN KEY(Employee_ID) REFERENCES EMPLOYEES(Employee_ID) ON DELETE SET NULL,
+    CONSTRAINT BILL_FK3 FOREIGN KEY(Artist_ID) REFERENCES Artists(Artist_ID) ON DELETE SET NULL
+
+
+);
+
+CREATE TABLE PAYSLIP
+(
+    Payslip_ID NUMBER(30),
+    Artist_ID NUMBER(30) NOT NULL,
+    Payslip_date DATE NOT NULL,
+    Art_ID NUMBER(30) NOT NULL,
+    Bill_ID NUMBER(30) NOT NULL,
+    Payslip_amount VARCHAR2(10) NOT NULL,
+
+    CONSTRAINT PAYSLIP_PK PRIMARY KEY(Payslip_ID),
+    CONSTRAINT PAYSLIP_FK1 FOREIGN KEY (Artist_ID) REFERENCES ARTISTS( Artist_ID) ON DELETE SET NULL,
+    CONSTRAINT PAYSLIP_FK2 FOREIGN KEY(Art_ID) REFERENCES ARTS(Art_ID)ON DELETE SET NULL,
+    CONSTRAINT PAYSLIP_FK3 FOREIGN KEY (Bill_ID) REFERENCES BILL(Bill_ID) ON DELETE SET NULL    
+);
+--INSERT INTO BILL(Bill_ID,Customer_ID,Art_ID,Bill_date,Bill_amount) VALUES (1,4,3,'19-DEC-2017',2000);
+--INSERT INTO BILL(Bill_ID,Customer_ID,Art_ID,Bill_date,Bill_amount) VALUES (2,3,1,'14-JUL-2016',4800);
+
+
+
+--INSERT INTO PAYSLIP(Playslip_ID,Artist_ID,Playslip_date,Art_ID,Bill_ID,Payslip_amount) VALUES (1,1,'14-JUL-2017',1,2,4800);
+
+
+CREATE TABLE CONTAINS
+(
+    Exhibition_ID NUMBER(30),
+    Art_ID NUMBER(30),
+    Start_date DATE,
+    End_date DATE,
+
+    CONSTRAINT CONTAINS_PK PRIMARY KEY (Exhibition_ID,Art_ID, Start_date, End_date),
+    CONSTRAINT CONTAINS_FK1 FOREIGN KEY (Exhibition_ID) REFERENCES EXHIBITIONS(Exhibition_ID) ON DELETE SET NULL,
+    CONSTRAINT CONTAINS_FK2 FOREIGN KEY (Art_ID)REFERENCES ARTS(Art_ID) ON DELETE SET NULL
+
+);
+
+CREATE TABLE PLACES_IN
+(
+    Exhibition_ID NUMBER(30) NOT NULL,
+    Start_date DATE ,
+    End_date DATE,
+    Hall_ID NUMBER(30) NOT NULL,
+    
+    CONSTRAINT PLACES_IN_PK PRIMARY KEY (Start_date, End_date),
+    CONSTRAINT PLACES_IN_FK1 FOREIGN KEY (Exhibition_ID) REFERENCES EXHIBITIONS(Exhibition_ID) ON DELETE SET NULL,
+    CONSTRAINT PLACES_IN_FK2 FOREIGN KEY (Hall_ID) REFERENCES HALLROOM(Hall_ID) ON DELETE SET NULL
+
+
+);
+
+
+CREATE TABLE SERVES_AT
+(
+    Employee_ID NUMBER(30), 
+    Serving_date DATE,
+    Hall_ID NUMBER(30) NOT NULL,
+    
+    CONSTRAINT SERVES_AT_PK PRIMARY KEY (Employee_ID, Serving_date),
+    CONSTRAINT SERVES_AT_FK1 FOREIGN KEY (Hall_ID) REFERENCES HALLROOM(Hall_ID) ON DELETE SET NULL,
+    CONSTRAINT SERVERS_AT_FK2 FOREIGN KEY (Employee_ID) REFERENCES EMPLOYEES(Employee_ID) ON DELETE SET NULL
+);
+
+CREATE TABLE PREPARES
+(
+Bill_ID NUMBER(30),
+Payslip_ID NUMBER(30),
+Employee_ID NUMBER(30) NOT NULL,
+
+CONSTRAINT PREPARES_PK PRIMARY KEY (Bill_ID,Payslip_ID),
+CONSTRAINT PREPARES_FK1 FOREIGN KEY(Employee_ID) REFERENCES Employees(Employee_ID) ON DELETE SET NULL,
+CONSTRAINT PREPARES_FK2 FOREIGN KEY(Bill_ID) REFERENCES BILL(Bill_ID) ON DELETE SET NULL,
+CONSTRAINT PREPARES_FK3 FOREIGN KEY(Payslip_ID) REFERENCES BILL(Bill_ID) ON DELETE SET NULL
+);
+
+CREATE TABLE BUYS
+(
+Art_ID NUMBER(30),
+Customer_ID NUMBER(30) NOT NULL,
+
+CONSTRAINT BUYS_PK PRIMARY KEY(Art_ID),
+CONSTRAINT BUYS_FK1 FOREIGN KEY(Customer_ID) REFERENCES CUSTOMERS(Customer_ID) ON DELETE SET NULL,
+CONSTRAINT BUYS_FK2 FOREIGN KEY (Art_ID) REFERENCES ARTS(Art_ID) ON DELETE SET NULL
+);
+
+CREATE TABLE ORGANIZES
+(
+Employee_ID NUMBER(30),
+Exhibition_ID NUMBER(30),
+Start_date DATE,
+End_date DATE,
+
+CONSTRAINT ORGANIZES_PK PRIMARY KEY(Employee_ID,Exhibition_ID,Start_date,End_date),
+
+CONSTRAINT ORGANIZES_FK1 FOREIGN KEY(Employee_ID) REFERENCES EMPLOYEES(Employee_ID) ON DELETE SET NULL,
+CONSTRAINT ORGANIZES_FK2 FOREIGN KEY(Exhibition_ID) REFERENCES EXHIBITIONS(Exhibition_ID) ON DELETE SET NULL,
+CONSTRAINT ORG_date_check CHECK (End_date>Start_date)
+);
+
+
+
+DROP TABLE BILL PURGE;
+DROP TABLE BUYS PURGE;
+DROP TABLE CONTAINS PURGE;
+DROP TABLE CUSTOMERS PURGE;
+DROP TABLE EMPLOYEES PURGE;
+DROP TABLE EXHIBITIONS PURGE;
+DROP TABLE HALLROOM PURGE;
+DROP TABLE MANAGERS PURGE;
+DROP TABLE ORGANIZES PURGE;
+DROP TABLE PAYSLIP PURGE;
+DROP TABLE PREPARES PURGE;
+DROP TABLE SERVES_AT PURGE;
+DROP TABLE PLACES_IN PURGE;
+DROP TABLE ARTS PURGE;
+DROP TABLE ARTISTS PURGE;
+--DROP TABLE DEPARTMENTS PURGE;
+
+INSERT INTO PAYSLIP(Payslip_amount)
+SELECT Bill_amount*.7
+FROM BILL;
+
+insert into CUSTOMERS (Customer_ID, Customer_name, User_name, Password, Sex, Address, Phone_No, Email_ID, Favorite_genre,Date_of_birth) values (SET_CUSOMERID, 'Avigdor Swadon', 'aswadon0', 'dGoM29P68z', 'Male', '3 Vidon Avenue', '930-218-6345', 'aswadon0@artisteer.com', 'Fauvism','24-MAR-1985');
+insert into CUSTOMERS (Customer_ID, Customer_name, User_name, Password, Sex, Address, Phone_No, Email_ID, Favorite_genre,Date_of_birth) values (SET_CUSOMERID, 'Carine Iacofo', 'ciacofo1', 'RnqQxR2GYPU0', 'Female', '93063 Prentice Terrace', '106-571-0981', 'ciacofo1@noaa.gov', 'Maritime Art','5-JUN-1970');
+insert into CUSTOMERS (Customer_ID, Customer_name, User_name, Password, Sex, Address, Phone_No, Email_ID, Favorite_genre,Date_of_birth) values (SET_CUSOMERID, 'Osborne Eddoes', 'oeddoes2', 'Mn6cGm0w2X', 'Male', '7 Holmberg Terrace', '596-146-3435', 'oeddoes2@indiatimes.com', 'Post Modern','10-SEP-1990');
+insert into CUSTOMERS (Customer_ID, Customer_name, User_name, Password, Sex, Address, Phone_No, Email_ID, Favorite_genre,Date_of_birth) values (SET_CUSOMERID, 'Celene Sauniere', 'csauniere3', '1dw9vznkZ', 'Male', '010 Comanche Place', '715-813-0101', 'csauniere3@ow.ly', 'Renaissance','2-JAN-2000');
+insert into CUSTOMERS (Customer_ID, Customer_name, User_name, Password, Sex, Address, Phone_No, Email_ID, Favorite_genre,Date_of_birth) values (SET_CUSOMERID, 'Warren Spoors', 'wspoors4', 'WnjJIA1G', 'Male', '41443 Hooker Place', '856-597-3450', 'wspoors4@narod.ru', 'Symbolism','30-APR-1950');
+
+
+insert into MANAGERS (Manager_ID, MANAGER_NAME, Date_of_birth, Sex, Address, Phone_no, Email_id, Join_date, End_date, Salary, User_name, Password) values (SET_MANAGERID, 'Orsa Levee', '09-Feb-2017', 'Male', '3309 Iowa Circle', '563-693-5930', 'olevee0@gravatar.com', '22-Feb-2004', '02-Jun-2017', 48598, 'olevee0', 'vLbgAIfv');
+insert into MANAGERS (Manager_ID, MANAGER_NAME, Date_of_birth, Sex, Address, Phone_no, Email_id, Join_date, End_date, Salary, User_name, Password) values (SET_MANAGERID, 'Andra Sansbury', '27-Apr-2017', 'Male', '42 Eggendart Drive', '301-601-2914', 'asansbury1@squidoo.com', '07-Dec-2008', '14-Apr-2016', 70516, 'asansbury1', 'EslNt0t4Dk');
+insert into MANAGERS (Manager_ID, MANAGER_NAME, Date_of_birth, Sex, Address, Phone_no, Email_id, Join_date, End_date, Salary, User_name, Password) values (SET_MANAGERID, 'Marty Presslie', '10-May-2017', 'Male', '9 Gateway Pass', '549-264-4977', 'mpresslie2@illinois.edu', '02-Dec-2007', '11-Jan-2015', 34189, 'mpresslie2', 'WFRfUGk8H2p');
+insert into MANAGERS (Manager_ID, MANAGER_NAME, Date_of_birth, Sex, Address, Phone_no, Email_id, Join_date, End_date, Salary, User_name, Password) values (SET_MANAGERID, 'Nickie Priel', '20-Sep-2017', 'Female', '7 Banding Street', '666-791-0861', 'npriel3@ft.com', '27-Dec-2012', '31-Aug-2016', 49422, 'npriel3', 'yL8gwgsoPa');
+insert into MANAGERS (Manager_ID, MANAGER_NAME, Date_of_birth, Sex, Address, Phone_no, Email_id, Join_date, End_date, Salary, User_name, Password) values (SET_MANAGERID, 'Elsy Kornes', '11-Mar-2017', 'Male', '36 Mcbride Terrace', '425-177-0708', 'ekornes4@chron.com', '08-Dec-2011', '03-Sep-2016', 75104, 'ekornes4', '5rQha3X');
+
+
+INSERT INTO HALLROOM (Hall_ID,Hall_name) VALUES (SET_HALLID,'Kamrul Islam Hall');
+INSERT INTO HALLROOM (Hall_id,Hall_name) VALUES (SET_HALLID,'Azad Hall');
+
+insert into ARTISTS (Artist_Id , Artist_name, User_name, Password, Address, Sex, Phone_no, Email_Id, Main_genre, Date_of_birth) values (SET_ARTISTID, 'Marwin Beach', 'mbeach0', 'vsCLgvL', '676 Mcbride Lane', 'Female', '696-330-3381', 'mbeach0@eventbrite.com', 'Post Modern', '20-Aug-1990');
+insert into ARTISTS (Artist_Id , Artist_name, User_name, Password, Address, Sex, Phone_no, Email_Id, Main_genre, Date_of_birth) values (SET_ARTISTID, 'Baldwin Quail', 'bquail1', 'VNAEnkOIOb', '33 East Drive', 'Female', '784-874-6346', 'bquail1@walmart.com', 'Symbolism', '05-Jul-1984');
+insert into ARTISTS (Artist_Id , Artist_name, User_name, Password, Address, Sex, Phone_no, Email_Id, Main_genre, Date_of_birth) values (SET_ARTISTID, 'Violetta Chaperling', 'vchaperling2', 'A1TH9cwg1N', '1 Duke Street', 'Male', '974-651-4865', 'vchaperling2@blogtalkradio.com', 'Maritime Art', '22-May-1982');
+insert into ARTISTS (Artist_Id , Artist_name, User_name, Password, Address, Sex, Phone_no, Email_Id, Main_genre, Date_of_birth) values (SET_ARTISTID, 'Darwin Probey', 'dprobey3', '6w06Jp2b', '201 Burning Wood Hill', 'Male', '430-401-1362', 'dprobey3@ucsd.edu', 'Fauvism', '06-Oct-1976');
+insert into ARTISTS (Artist_Id , Artist_name, User_name, Password, Address, Sex, Phone_no, Email_Id, Main_genre, Date_of_birth) values (SET_ARTISTID, 'Darrelle Markson', 'dmarkson4', 'xx0eryQA', '1 Everett Circle', 'Male', '680-688-7956', 'dmarkson4@ucsd.edu', 'Renaissance', '25-Jun-1990');
+
+INSERT INTO ARTS(Art_id,Art_title,Artist_ID,Art_genre,Date_of_creation,Price,Status)  VALUES (SET_ARTID,'After The Ball',3,'Post Modern','23-MAR-2007',4800,'AVAILABLE');
+INSERT INTO ARTS(Art_id,Art_title,Artist_ID,Art_genre,Date_of_creation,Price,Status)  VALUES (SET_ARTID,'Attica Harbor',1,'Fauvism','07-APR-2005',9000,'AVAILABLE');
+INSERT INTO ARTS(Art_id,Art_title,Artist_ID,Art_genre,Date_of_creation,Price,Status)  VALUES (SET_ARTID,'Amiche',5,'Renaissance','15-JAN-2015',2000,'AVAILABLE');
+INSERT INTO ARTS(Art_id,Art_title,Artist_ID,Art_genre,Date_of_creation,Price,Status)  VALUES (SET_ARTID,'After The Rain',3,'Fauvism','23-SEP-1995',5000,'AVAILABLE');
+INSERT INTO ARTS(Art_id,Art_title,Artist_ID,Art_genre,Date_of_creation,Price,Status)  VALUES (SET_ARTID,'Red Eye',2,'Symbolism','23-OCT-1980',10000,'AVAILABLE');
+INSERT INTO ARTS(Art_id,Art_title,Artist_ID,Art_genre,Date_of_creation,Price,Status)  VALUES (SET_ARTID,'Fountain',4,'Maritime Art','14-JAN-2010',7000,'AVAILABLE');
+
+insert into EMPLOYEES (Employee_Id , Employee_name, User_name, Password, Manager_ID, Address, Sex, Salary, Phone_no, Email_ID, Date_of_birth, Join_date, End_date) values (SET_EMPLOYEEID, 'Anett Phoebe', 'aphoebe0', 'Zwk90YUJ', 1, '651 Di Loreto Hill', 'Male', 6546, '166-902-3250', 'aphoebe0@tmall.com', '25-Jun-1977', '09-Feb-2011', '27-Sep-2015');
+insert into EMPLOYEES (Employee_Id , Employee_name, User_name, Password, Manager_ID, Address, Sex, Salary, Phone_no, Email_ID, Date_of_birth, Join_date, End_date) values (SET_EMPLOYEEID, 'Ruby Aymes', 'raymes1', 'pMHIxIDi1jHn', 3, '6 Atwood Place', 'Male', 3304, '513-381-9377', 'raymes1@cnbc.com', '21-Jul-1981', '01-May-2005', '27-Aug-2015');
+insert into EMPLOYEES (Employee_Id , Employee_name, User_name, Password, Manager_ID, Address, Sex, Salary, Phone_no, Email_ID, Date_of_birth, Join_date, End_date) values (SET_EMPLOYEEID, 'Cloris Redfield', 'credfield2', 'pYwshM', 3, '8575 Stoughton Park', 'Female', 1980, '511-409-0875', 'credfield2@sciencedaily.com', '13-Jul-1978', '16-Jun-2004', '12-Jan-2015');
+insert into EMPLOYEES (Employee_Id , Employee_name, User_name, Password, Manager_ID, Address, Sex, Salary, Phone_no, Email_ID, Date_of_birth, Join_date, End_date) values (SET_EMPLOYEEID, 'Doloritas Adnet', 'dadnet3', 'X6fWUA', 2, '94 Larry Place', 'Female', 4828, '326-304-3828', 'dadnet3@istockphoto.com', '23-Jul-1984', '12-Feb-2010', '23-Mar-2016');
+insert into EMPLOYEES (Employee_Id , Employee_name, User_name, Password, Manager_ID, Address, Sex, Salary, Phone_no, Email_ID, Date_of_birth, Join_date, End_date) values (SET_EMPLOYEEID, 'Susanna Droghan', 'sdroghan4', '2hO9gSH', 3, '7634 Arapahoe Point', 'Male', 9467, '910-748-5616', 'sdroghan4@t-online.de', '13-Mar-1992', '01-Jun-2003', '29-Jan-2015');
+
+INSERT INTO BILL(Bill_ID,Customer_ID,Art_ID,ARTIST_ID,EMPLOYEE_ID,Bill_date,Bill_amount) VALUES (SET_BILLID,4,3,5,2,'19-DEC-2017',2000);
+INSERT INTO BILL(Bill_ID,Customer_ID,Art_ID,ARTIST_ID,EMPLOYEE_ID,Bill_date,Bill_amount) VALUES (SET_BILLID,3,1,3,1,'14-JUL-2016',4800);
+
+INSERT INTO EXHIBITIONS(EXHIBITION_ID,EXHIBITION_NAME,HALL_ID,ART_ID,START_DATE,END_DATE) VALUES (1,'Painting in Black and White',1,3,'23-DEC-2017','1-JAN-2018');
+
+INSERT INTO ARTISTS(ARTIST_ID,ARTIST_NAME,USER_NAME,PASSWORD,SEX,ADDRESS,PHONE_NO,EMAIL_ID,MAIN_GENRE,DATE_OF_BIRTH) VALUES(SET_ARTISTID,'asd','asda','asdad','asdad','asdasf','1466','sfadfsdf','asdasdf','24-JUN-2017');
+
+DELETE FROM BILL;
+DELETE FROM PAYSLIP;
+DELETE FROM PREPARES;
+DELETE FROM BUYS;
+
+UPDATE MANAGERS SET MANAGER_NAME='SDAD' WHERE MANAGER_ID=1;
+
+
+INSERT INTO ARTS(ART_ID,ART_TITLE,ARTIST_ID,ART_GENRE,DATE_OF_CREATION,PRICE,STATUS) VALUES(SET_ARTID,'ASDFDF',FETCH_ARTISTID('asd'),'asd','19-JAN-2017',2100,'SOLD');
+
+INSERT INTO EXHIBITIONS(EXHIBITION_ID,EXHIBITION_NAME,HALL_ID,ART_ID,START_DATE,END_DATE) VALUES(SET_EXHIBITIONID,'dff',FETCH_HALLID('Azad Hall'),FETCH_ARTID('Red Eye'),'15-MAY-2017','20-MAY-2017');
+
+
+
+
+
+
+
+CREATE OR REPLACE FUNCTION SET_ARTISTID
+RETURN NUMBER IS
+
+    v_id NUMBER(30);
+
+BEGIN
+    SELECT MAX(ARTIST_ID) INTO v_id
+    FROM ARTISTS;
+    
+    RETURN (v_id+1);
+END;
+/
+
+CREATE OR REPLACE FUNCTION SET_ARTID
+RETURN NUMBER IS
+
+    v_id NUMBER(30);
+
+BEGIN
+    SELECT MAX(ART_ID) INTO v_id
+    FROM ARTS;
+    
+    RETURN (v_id+1);
+END;
+/
+
+CREATE OR REPLACE FUNCTION SET_BILLID
+RETURN NUMBER IS
+
+    v_id NUMBER(30);
+
+BEGIN
+    SELECT MAX(BILL_ID) INTO v_id
+    FROM BILL;
+    
+    RETURN (v_id+1);
+END;
+/
+
+CREATE OR REPLACE FUNCTION SET_CUSTOMERID
+RETURN NUMBER IS
+
+    v_id NUMBER(30);
+
+BEGIN
+    SELECT MAX(CUSTOMER_ID) INTO v_id
+    FROM CUSTOMERS;
+    
+    RETURN (v_id+1);
+END;
+/
+
+CREATE OR REPLACE FUNCTION SET_EMPLOYEEID
+RETURN NUMBER IS
+
+    v_id NUMBER(30);
+
+BEGIN
+    SELECT MAX(EMPLOYEE_ID) INTO v_id
+    FROM EMPLOYEES;
+    
+    RETURN (v_id+1);
+END;
+/
+CREATE OR REPLACE FUNCTION SET_EXHIBITIONID
+RETURN NUMBER IS
+
+    v_id NUMBER(30);
+
+BEGIN
+    SELECT MAX(EXHIBITION_ID) INTO v_id
+    FROM EXHIBITIONS;
+    
+    RETURN (v_id+1);
+END;
+/
+
+CREATE OR REPLACE FUNCTION SET_SAME_EXHIBITIONID
+RETURN NUMBER IS
+
+    v_id NUMBER(30);
+
+BEGIN
+    SELECT MAX(EXHIBITION_ID) INTO v_id
+    FROM EXHIBITIONS;
+    
+    RETURN v_id;
+END;
+/
+
+CREATE OR REPLACE FUNCTION SET_HALLID
+RETURN NUMBER IS
+
+    v_id NUMBER(30);
+
+BEGIN
+    SELECT MAX(HALL_ID) INTO v_id
+    FROM HALLROOM;
+    
+    RETURN (v_id+1);
+END;
+/
+
+CREATE OR REPLACE FUNCTION SET_MANAGERID
+RETURN NUMBER IS
+
+    v_id NUMBER(30);
+
+BEGIN
+    SELECT MAX(MANAGER_ID) INTO v_id
+    FROM MANAGERS;
+    
+    RETURN (v_id+1);
+END;
+/
+
+
+
+
+--searches ART STATUS BY ID
+CREATE OR REPLACE FUNCTION SEARCH_ART_STATUS(INPUT IN NUMBER)
+RETURN VARCHAR2 IS
+    status VARCHAR2(50);
+   -- sasd NUMBER(20);
+BEGIN
+    SELECT STATUS INTO status
+    FROM ARTS
+    WHERE ART_ID=INPUT;
+    RETURN status;
+
+END;
+/
+
+
+
+
+CREATE OR REPLACE FUNCTION FETCH_ARTIST(INPUT IN NUMBER)
+RETURN VARCHAR2 IS
+    v_name VARCHAR2(100);
+    
+BEGIN 
+    SELECT ARTIST_NAME INTO v_name
+    FROM ARTISTS
+    WHERE ARTIST_ID=INPUT;
+    
+    RETURN v_name;
+    
+END;
+/
+
+CREATE OR REPLACE FUNCTION FETCH_HALL(INPUT IN NUMBER)
+RETURN VARCHAR2 IS
+    v_name VARCHAR2(100);
+    
+BEGIN 
+    SELECT HALL_NAME INTO v_name
+    FROM HALLROOM
+    WHERE HALL_ID=INPUT;
+    
+    RETURN v_name;
+    
+END;
+/
+
+
+
+CREATE OR REPLACE FUNCTION FETCH_ART(INPUT IN NUMBER)
+RETURN VARCHAR2 IS
+    v_artname VARCHAR2(100);
+BEGIN
+    SELECT ART_TITLE INTO v_artname 
+    FROM ARTS 
+    WHERE ART_ID=INPUT;
+    
+    RETURN v_artname;
+END;
+/
+
+
+
+CREATE OR REPLACE FUNCTION FETCH_MANAGER(INPUT IN NUMBER)
+RETURN VARCHAR2 IS
+    v_name VARCHAR2(100);
+    
+BEGIN
+    SELECT MANAGER_NAME INTO v_name
+    FROM MANAGERS
+    WHERE MANAGER_ID=INPUT;
+    
+    RETURN v_name;
+    
+END;
+/
+
+
+
+CREATE OR REPLACE FUNCTION FETCH_CUSTOMER(INPUT IN NUMBER)
+RETURN  VARCHAR2 IS
+    v_name VARCHAR2(100);
+    
+BEGIN
+    SELECT CUSTOMER_NAME INTO v_name
+    FROM CUSTOMERS
+    WHERE CUSTOMER_ID=INPUT;
+    
+    RETURN v_name;
+    
+END;
+/
+
+CREATE OR REPLACE FUNCTION FETCH_CUSTOMERID(INPUT IN VARCHAR2)
+RETURN  NUMBER IS
+    v_id NUMBER(30);
+    
+BEGIN
+    SELECT CUSTOMER_ID INTO v_id
+    FROM CUSTOMERS 
+    WHERE CUSTOMER_NAME=INPUT;
+    
+    RETURN v_id;
+    
+END;
+/
+
+CREATE OR REPLACE FUNCTION FETCH_HALLID(INPUT IN VARCHAR2)
+RETURN  NUMBER IS
+    v_id NUMBER(30);
+    
+BEGIN
+    SELECT HALL_ID INTO v_id
+    FROM HALLROOM 
+    WHERE HALL_NAME=INPUT;
+    
+    RETURN v_id;
+    
+END;
+/
+
+CREATE OR REPLACE FUNCTION FETCH_ARTISTID(INPUT IN VARCHAR2)
+RETURN  NUMBER IS
+    v_id NUMBER(30);
+    
+BEGIN
+    SELECT ARTIST_ID INTO v_id
+    FROM ARTISTS 
+    WHERE ARTIST_NAME=INPUT;
+    
+    RETURN v_id;
+    
+END;
+/
+
+CREATE OR REPLACE FUNCTION FETCH_ARTID(INPUT IN VARCHAR2)
+RETURN  NUMBER IS
+    v_id NUMBER(30);
+    
+BEGIN
+    SELECT ART_ID INTO v_id
+    FROM ARTS 
+    WHERE ART_TITLE=INPUT;
+    
+    RETURN v_id;
+    
+END;
+/
+CREATE OR REPLACE FUNCTION FETCH_ARTISTID_FROM_ARTNAME(INPUT IN VARCHAR2)
+RETURN NUMBER IS
+    v_id NUMBER(30);
+    
+BEGIN
+    SELECT A1.ARTIST_ID INTO   v_id
+    FROM ARTISTS A1 JOIN ARTS A2
+    ON A1.ARTIST_ID=A2.ARTIST_ID;
+    
+    RETURN v_id;
+    
+END;
+/
+    
+CREATE OR REPLACE FUNCTION FETCH_ARTISTID_FROM_ARTID(INPUT IN NUMBER)
+RETURN NUMBER IS
+    v_id NUMBER(30);
+    
+BEGIN
+    SELECT A1.ARTIST_ID INTO   v_id
+    FROM ARTISTS A1 JOIN ARTS A2
+    ON A1.ARTIST_ID=A2.ARTIST_ID
+    WHERE A2.ART_ID=INPUT;
+    
+    RETURN v_id;
+    
+END;
+/ 
+
+
+
+    
+ 
+
+--inserts into payslip according to bill
+CREATE OR REPLACE TRIGGER INSERT_INTO_PAYSLIP
+    AFTER INSERT OR UPDATE
+    ON BILL
+    FOR EACH ROW
+    
+    
+DECLARE
+    V_PAYSLIPID NUMBER(30);
+    V_ARTISTID NUMBER(30);
+    V_PAYSLIPDATE DATE;
+    V_ARTID NUMBER(30);
+    V_BILLID NUMBER(30);
+    V_PAYSLIPAM VARCHAR2(10);
+
+BEGIN
+    V_PAYSLIPID :=:NEW.BILL_ID;
+    V_ARTISTID := :NEW.ARTIST_ID;
+    V_PAYSLIPDATE :=:NEW.BILL_DATE;
+    V_ARTID :=:NEW.ART_ID;
+    V_BILLID :=:NEW.BILL_ID;
+    V_PAYSLIPAM :=:NEW.BILL_AMOUNT*.7;
+    
+    INSERT INTO PAYSLIP(PAYSLIP_ID,ARTIST_ID,PAYSLIP_DATE,ART_ID,BILL_ID,PAYSLIP_AMOUNT) VALUES (V_PAYSLIPID,V_ARTISTID,V_PAYSLIPDATE,V_ARTID,V_BILLID,V_PAYSLIPAM);
+
+END;
+/
+
+--REMOVES FROM PAYSLIP
+CREATE OR REPLACE TRIGGER REMOVE_FROM_PAYSLIP
+    BEFORE DELETE
+    ON BILL
+    FOR EACH ROW
+    
+DECLARE
+    V_BILLID NUMBER(30);
+    
+BEGIN
+    V_BILLID:= :OLD.BILL_ID;
+    DELETE FROM PAYSLIP WHERE PAYSLIP_ID=V_BILLID;
+END;
+/
+
+--updates art's status
+CREATE OR REPLACE TRIGGER UPDATE_ART_STATUS
+    AFTER INSERT
+    ON BILL
+    FOR EACH ROW
+        
+DECLARE
+    V_ARTID NUMBER(30);
+
+BEGIN
+    V_ARTID := :NEW.ART_ID;
+    UPDATE ARTS SET STATUS='SOLD' WHERE ART_ID=V_ARTID;
+END;
+/
+
+--RESETS ART'S STATUS
+
+CREATE OR REPLACE TRIGGER RESET_ART_STATUS
+    AFTER DELETE
+    ON BILL
+    FOR EACH ROW
+    
+ DECLARE
+    V_ARTID NUMBER(30);
+    
+BEGIN
+    V_ARTID := :OLD.ART_ID;
+    UPDATE ARTS SET STATUS ='AVAILABLE' WHERE ART_ID=V_ARTID;
+END;
+/
+
+CREATE OR REPLACE TRIGGER INSERT_INTO_PREPARES
+    AFTER INSERT
+    ON BILL
+    FOR EACH ROW
+ DECLARE   
+   V_BILLID NUMBER(30);
+    V_PAYID NUMBER(30);
+    V_EMID NUMBER(30);
+ 
+BEGIN
+    V_BILLID := :NEW.BILL_ID;
+    V_PAYID := :NEW.BILL_ID;
+    V_EMID := :NEW.EMPLOYEE_ID;
+    
+       
+   INSERT INTO PREPARES(BILL_ID,PAYSLIP_ID,EMPLOYEE_ID) VALUES(V_BILLID,V_PAYID,V_EMID);
+    
+ END;
+ /
+ 
+ CREATE OR REPLACE TRIGGER REMOVE_FROM_PREPARES
+    BEFORE DELETE
+    ON BILL
+    FOR EACH ROW
+ DECLARE
+    V_BILLID NUMBER(30);
+BEGIN
+    V_BILLID := :OLD.BILL_ID;
+    DELETE FROM PREPARES WHERE BILL_ID=V_BILLID;
+END;
+/
+    
+ 
+ CREATE OR REPLACE TRIGGER INSERT_INTO_BUYS
+    AFTER INSERT 
+    ON BILL
+    FOR EACH ROW
+    
+ DECLARE
+    V_ARTID NUMBER(30);
+    V_CID NUMBER(30);
+ BEGIN
+    V_ARTID := :NEW.ART_ID;
+    V_CID := :NEW.CUSTOMER_ID;
+    
+    INSERT INTO BUYS (ART_ID,CUSTOMER_ID) VALUES (V_ARTID,V_CID);
+END;
+/ 
+
+
+CREATE OR REPLACE TRIGGER REMOVE_FROM_BUYS
+    BEFORE DELETE
+    ON BILL
+    FOR EACH ROW
+    
+DECLARE
+     V_ARTID NUMBER(30);
+BEGIN
+    V_ARTID := :OLD.ART_ID;
+    DELETE FROM BUYS WHERE ART_ID=V_ARTID;
+END;
+/
+
+
+SELECT * FROM CUSTOMERS;
+
+SELECT A1.Artist_name ,A2.Price,A2.Status
+FROM Artists A1 JOIN Arts A2
+ON (A1.Artist_Id=A2.Artist_Id)
+WHERE A1.Artist_ID=3;
+
+SELECT Employee_name,Address,Sex,Salary,Phone_no,Email_ID,Date_of_birth,Join_Date,End_date FROM EMPLOYEES WHERE Manager_ID =( SELECT Manager_ID FROM MANAGERS WHERE MANAGER_ID=3 );
+
+
+    
+
+SELECT SEARCHART_BY_PRICE(4000) FROM ARTS;
+
+SELECT MAX(BILL_ID) FROM BILL;
+
+SELECT USER_NAME,ADDRESS,PASSWORD,EMAIL_ID,PHONE_NO FROM MANAGERS WHERE MANAGER_ID=1;
+
+
+SELECT ART_TITLE,FETCH_ARTIST(ARTIST_ID),ART_GENRE,DATE_OF_CREATION,PRICE,STATUS FROM ARTS WHERE PRICE<2000;
+
+
+
+SELECT PAYSLIP_ID,ART_ID,FETCH_ART(ART_ID),PAYSLIP_DATE,PAYSLIP_AMOUNT FROM PAYSLIP WHERE ARTIST_ID=3;
+
+SELECT BILL_ID,CUSTOMER_ID,FETCH_CUSTOMER(CUSTOMER_ID),ART_ID,FETCH_ART(ART_ID),ARTIST_ID,FETCH_ARTIST(ARTIST_ID),BILL_DATE,BILL_AMOUNT FROM BILL WHERE CUSTOMER_ID=3;
+        
+  SELECT * FROM EMPLOYEES WHERE MANAGER_ID=(SELECT MANAGER_ID FROM MANAGERS WHERE MANAGER_ID=1); 
+  
+  SELECT FETCH_ARTIST(ARTIST_ID) FROM ARTISTS WHERE ARTIST_ID=1;
+    
+    
+    SELECT BILL_ID,FETCH_ARTISTID_FROM_ARTID(ART_ID) FROM BILL ;
+
+SELECT FETCH_CUSTOMER(CUSTOMER_ID) FROM CUSTOMERS WHERE CUSTOMER_ID=2;
+
+SELECT BILL_ID,CUSTOMER_ID,FETCH_CUSTOMER(CUSTOMER_ID),ART_ID,FETCH_ART(ART_ID),ARTIST_ID,FETCH_ARTIST(ARTIST_ID),BILL_DATE,BILL_AMOUNT FROM BILL;
+
+
+SELECT EMPLOYEE_NAME,FETCH_MANAGER(MANAGER_ID),ADDRESS,SEX,SALARY,PHONE_NO,EMAIL_ID,DATE_OF_BIRTH,JOIN_DATE,END_DATE FROM EMPLOYEES WHERE MANAGER_ID=1;
+
+
+
+SELECT SEARCH_ART_STATUS(ART_ID) 
+FROM ARTS
+WHERE ART_ID=3;
+
+
+SELECT ART_TITLE,ART_GENRE, FETCH_ARTIST(ARTIST_ID),DATE_OF_CREATION,PRICE,STATUS FROM ARTS WHERE ART_ID=1;
+
+SELECT CUSTOMER_NAME,ADDRESS,SEX,PHONE_NO,EMAIL_ID,DATE_OF_BIRTH,FAVORITE_GENRE FROM CUSTOMERS WHERE CUSTOMER_ID=1;
+
+SELECT ART_TITLE,FETCH_ARTIST(ARTIST_ID),DATE_OF_CREATION,PRICE,STATUS FROM ARTS WHERE PRICE BETWEEN 2000 AND 5000;
+
+SELECT PAYSLIP_ID,ART_ID,FETCH_ART(ART_ID),PAYSLIP_DATE,PAYSLIP_AMOUNT FROM PAYSLIP WHERE ARTIST_ID=3;
+
+SELECT FETCH_MANAGER(MANAGER_ID)
+FROM MANAGERS
+WHERE MANAGER_ID=2;
+
+
+
+INSERT INTO BILL(BILL_ID,CUSTOMER_ID,ART_ID,ARTIST_ID,EMPLOYEE_ID,BILL_DATE,BILL_AMOUNT) VALUES(SET_BILLID,FETCH_CUSTOMERID('Osborne Eddoes'),5,FETCH_ARTISTID_FROM_ARTID(5),1,'15-JAN-2018',2500);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
